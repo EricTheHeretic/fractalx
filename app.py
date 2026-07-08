@@ -8,27 +8,24 @@ from PIL import Image
 from cryptography.fernet import Fernet
 import base64
 
-st.set_page_config(page_title="FractalX", layout="centered")
+st.set_page_config(page_title="FractalX", layout="wide")
 
-# ====================== SMALLER LOGO BANNER ======================
-try:
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
+# ====================== MOBILE-FRIENDLY WIDE BANNER ======================
+col1, col2, col3 = st.columns([1, 3, 1])
+with col2:
+    try:
         st.image("logo.png", use_container_width=True)
-except:
-    st.markdown("""
-    <h1 style='text-align: center; margin-bottom: 0;'>
-        <span style='color: #c4b5fd; font-size: 2.2em; letter-spacing: 1px;'>FRACTAL</span>
-        <span style='color: #e0bbff; font-size: 3.2em; font-weight: bold;'>X</span>
-    </h1>
-    """, unsafe_allow_html=True)
+    except:
+        st.markdown("""
+        <h1 style='text-align: center; margin-bottom: 5px;'>
+            FRACTAL <span style='color: #e0bbff; font-size: 1.4em;'>X</span>
+        </h1>
+        """, unsafe_allow_html=True)
 
 st.divider()
 
-# ====================== TABS ======================
 tab1, tab2 = st.tabs(["✉️ Encode", "🔓 Decode"])
 
-# ====================== ENCODE ======================
 with tab1:
     st.subheader("Message")
     message = st.text_area("Type your secret message", height=70)
@@ -89,11 +86,10 @@ with tab1:
             out = io.BytesIO()
             final.save(out, format="PNG")
 
-            st.success("✅ Fractal created with your message hidden inside!")
+            st.success("✅ Fractal created!")
             st.image(out, use_container_width=True)
             st.download_button("⬇️ Download PNG", out.getvalue(), "fractalx.png", "image/png")
 
-# ====================== DECODE ======================
 with tab2:
     st.subheader("Decode a Fractal Image")
     st.write("Upload the PNG you received, then enter the password sent via physical mail.")
@@ -130,7 +126,6 @@ with tab2:
 
 st.divider()
 
-# ====================== INSTRUCTIONS (ALWAYS AT BOTTOM) ======================
 st.markdown("""
 **How it works:**
 - Create a message + password → generates a fractal with your message hidden inside the pixels.
@@ -138,5 +133,5 @@ st.markdown("""
 - Send the password separately via physical mail.
 - Recipient uploads the PNG, enters the password, and reads your message.
 
-**Each image has its own password.** The fractal is the carrier of the secret.
+**Each image has its own password.**
 """)
