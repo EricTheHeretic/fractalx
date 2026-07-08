@@ -89,13 +89,12 @@ with tab1:
             st.success("✅ Fractal created with your message hidden inside!")
             st.image(out, use_container_width=True)
 
-            # Two buttons side by side, same size
             col_download, col_share = st.columns(2)
             with col_download:
                 st.download_button("⬇️ Download PNG", out.getvalue(), "fractalx.png", "image/png", use_container_width=True)
             with col_share:
                 tweet_text = "Secret message hidden inside this fractal. Only the right password can read it. Made with FractalX"
-                x_url = f"https://twitter.com/intent/tweet?text={tweet_text}&url=https://fractalx-3fxnxrg2auquemymk5rmxv.streamlit.app"
+                x_url = f"https://twitter.com/intent/tweet?text={tweet_text}&url=https://fractalx-production.up.railway.app"
                 st.link_button("📤 Share to X", x_url, use_container_width=True)
 
 with tab2:
