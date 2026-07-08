@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 import numpy as np
 import matplotlib.pyplot as plt
 from hashlib import sha256
@@ -8,9 +7,6 @@ import random
 from PIL import Image
 from cryptography.fernet import Fernet
 import base64
-
-# Force Streamlit to use the port Railway gives us
-os.environ["STREAMLIT_SERVER_PORT"] = os.environ.get("PORT", "8501")
 
 st.set_page_config(page_title="FractalX", layout="wide")
 
@@ -98,7 +94,7 @@ with tab1:
                 st.download_button("⬇️ Download PNG", out.getvalue(), "fractalx.png", "image/png", use_container_width=True)
             with col_share:
                 tweet_text = "Secret message hidden inside this fractal. Only the right password can read it. Made with FractalX"
-                x_url = f"https://twitter.com/intent/tweet?text={tweet_text}&url=https://fractalx-production.up.railway.app"
+                x_url = f"https://twitter.com/intent/tweet?text={tweet_text}&url=https://fractalx-3fxnxrg2auquemymk5rmxv.streamlit.app"
                 st.link_button("📤 Share to X", x_url, use_container_width=True)
 
 with tab2:
