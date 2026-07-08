@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from hashlib import sha256
@@ -7,6 +8,9 @@ import random
 from PIL import Image
 from cryptography.fernet import Fernet
 import base64
+
+# Force Streamlit to use the port Railway gives us
+os.environ["STREAMLIT_SERVER_PORT"] = os.environ.get("PORT", "8501")
 
 st.set_page_config(page_title="FractalX", layout="wide")
 
