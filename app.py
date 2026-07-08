@@ -10,23 +10,25 @@ import base64
 
 st.set_page_config(page_title="FractalX", layout="centered")
 
-# ====================== LOGO BANNER (ALWAYS AT TOP) ======================
+# ====================== SMALLER LOGO BANNER ======================
 try:
-    st.image("logo.png", use_container_width=True)
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image("logo.png", use_container_width=True)
 except:
     st.markdown("""
     <h1 style='text-align: center; margin-bottom: 0;'>
-        <span style='color: #c4b5fd; font-size: 2.6em; letter-spacing: 1px;'>FRACTAL</span>
-        <span style='color: #e0bbff; font-size: 3.6em; font-weight: bold;'>X</span>
+        <span style='color: #c4b5fd; font-size: 2.2em; letter-spacing: 1px;'>FRACTAL</span>
+        <span style='color: #e0bbff; font-size: 3.2em; font-weight: bold;'>X</span>
     </h1>
     """, unsafe_allow_html=True)
 
 st.divider()
 
-# ====================== TABS WITH EMOJIS ======================
+# ====================== TABS ======================
 tab1, tab2 = st.tabs(["✉️ Encode", "🔓 Decode"])
 
-# ====================== ENCODE TAB ======================
+# ====================== ENCODE ======================
 with tab1:
     st.subheader("Message")
     message = st.text_area("Type your secret message", height=70)
@@ -38,12 +40,10 @@ with tab1:
         if not message or not passphrase:
             st.error("Please enter a message and password.")
         else:
-            # AES Encryption
             key = base64.urlsafe_b64encode(sha256(passphrase.encode()).digest()[:32])
             fernet = Fernet(key)
             encrypted = fernet.encrypt(message.encode())
 
-            # Create fractal
             seed = int(sha256((message + passphrase).encode()).hexdigest(), 16)
             np.random.seed(seed % (2**32))
 
@@ -71,7 +71,6 @@ with tab1:
             img = Image.open(buf).convert("RGB")
             arr = np.array(img)
 
-            # Embed using fixed size (reliable)
             FIXED_SIZE = 256
             data = encrypted.ljust(FIXED_SIZE, b'\0')[:FIXED_SIZE]
 
@@ -94,7 +93,7 @@ with tab1:
             st.image(out, use_container_width=True)
             st.download_button("⬇️ Download PNG", out.getvalue(), "fractalx.png", "image/png")
 
-# ====================== DECODE TAB ======================
+# ====================== DECODE ======================
 with tab2:
     st.subheader("Decode a Fractal Image")
     st.write("Upload the PNG you received, then enter the password sent via physical mail.")
@@ -135,9 +134,9 @@ st.divider()
 st.markdown("""
 **How it works:**
 - Create a message + password → generates a fractal with your message hidden inside the pixels.
-- Send the PNG image over the internet (X, email, Discord, etc.).
-- Send the password separately via physical mail (letter or postcard).
-- Recipient uses this app, uploads the PNG, enters the password from the mail, and reads your message.
+- Send the PNG image over the internet.
+- Send the password separately via physical mail.
+- Recipient uploads the PNG, enters the password, and reads your message.
 
-**Each image has its own password.** The fractal itself is the mathematical carrier of the secret.
+**Each image has its own password.** The fractal is the carrier of the secret.
 """)
