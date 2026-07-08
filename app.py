@@ -89,13 +89,12 @@ with tab1:
             st.success("✅ Fractal created with your message hidden inside!")
             st.image(out, use_container_width=True)
             
-            # Share to X button
-            download_bytes = out.getvalue()
-            st.download_button("⬇️ Download PNG", download_bytes, "fractalx.png", "image/png")
-            
-            if st.button("📤 Share to X"):
-                tweet_text = "Secret message hidden inside this fractal. Only the right password can read it. Made with FractalX."
-                st.markdown(f"[**Click here to post on X**](https://twitter.com/intent/tweet?text={tweet_text}&url=https://your-app-link.streamlit.app)", unsafe_allow_html=True)
+            st.download_button("⬇️ Download PNG", out.getvalue(), "fractalx.png", "image/png")
+
+            # Share to X button (now works)
+            tweet_text = "Secret message hidden inside this fractal. Only the right password can read it. Made with FractalX"
+            x_url = f"https://twitter.com/intent/tweet?text={tweet_text}&url=https://fractalx-3fxnxrg2auquemymk5rmxv.streamlit.app"
+            st.link_button("📤 Share to X", x_url, use_container_width=True)
 
 with tab2:
     st.subheader("Decode a Fractal Image")
