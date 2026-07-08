@@ -10,7 +10,7 @@ import base64
 
 st.set_page_config(page_title="FractalX", layout="wide")
 
-# ====================== MOBILE-FRIENDLY WIDE BANNER ======================
+# ====================== WIDE BANNER ======================
 col1, col2, col3 = st.columns([1, 3, 1])
 with col2:
     try:
@@ -86,9 +86,16 @@ with tab1:
             out = io.BytesIO()
             final.save(out, format="PNG")
 
-            st.success("✅ Fractal created!")
+            st.success("✅ Fractal created with your message hidden inside!")
             st.image(out, use_container_width=True)
-            st.download_button("⬇️ Download PNG", out.getvalue(), "fractalx.png", "image/png")
+            
+            # Share to X button
+            download_bytes = out.getvalue()
+            st.download_button("⬇️ Download PNG", download_bytes, "fractalx.png", "image/png")
+            
+            if st.button("📤 Share to X"):
+                tweet_text = "Secret message hidden inside this fractal. Only the right password can read it. Made with FractalX."
+                st.markdown(f"[**Click here to post on X**](https://twitter.com/intent/tweet?text={tweet_text}&url=https://your-app-link.streamlit.app)", unsafe_allow_html=True)
 
 with tab2:
     st.subheader("Decode a Fractal Image")
