@@ -99,10 +99,10 @@ with tab1:
 
 with tab2:
     st.subheader("Decode a Fractal Image")
-    st.write("Upload the PNG you received, then enter the password sent via physical mail.")
+    st.write("Upload the PNG you received, then enter the password.")
 
     uploaded = st.file_uploader("Upload PNG", type=["png"])
-    pw = st.text_input("Password from physical mail", type="password")
+    pw = st.text_input("Password", type="password")
 
     if st.button("Decode Message", use_container_width=True):
         if uploaded and pw:
@@ -137,7 +137,7 @@ st.markdown("""
 **How it works:**
 - Create a message + password → generates a fractal with your message hidden inside the pixels.
 - Send the PNG image over the internet.
-- Send the password separately via physical mail.
+- Send the password separately.
 - Recipient uploads the PNG, enters the password, and reads your message.
 
 **Each image has its own password.**
