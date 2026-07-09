@@ -1,10 +1,9 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
 from hashlib import sha256
 import io
 import random
-from PIL import Image, ImageDraw
+from PIL import Image
 from cryptography.fernet import Fernet
 import base64
 
@@ -33,7 +32,7 @@ with tab1:
     st.subheader("Password for this image")
     passphrase = st.text_input("Create a password", type="password")
 
-    pepe_mode = st.checkbox("🐸 Pepe Mode (looks like a meme)")
+    pepe_mode = st.checkbox("🐸 Use exact Pepe template")
 
     if st.button("Generate Fractal + Hide Message", type="primary", use_container_width=True):
         if not message or not passphrase:
@@ -43,50 +42,41 @@ with tab1:
             fernet = Fernet(key)
             encrypted = fernet.encrypt(message.encode())
 
-            seed = int(sha256((message + passphrase).encode()).hexdigest(), 16)
-            np.random.seed(seed % (2**32))
-
-            width, height = 700, 500
-            x = np.linspace(-2.5, 1.5, width)
-            y = np.linspace(-1.5, 1.5, height)
-            X, Y = np.meshgrid(x, y)
-            C = X + 1j * Y
-            Z = np.zeros_like(C)
-            divtime = np.zeros(C.shape, dtype=int)
-
-            for i in range(80):
-                mask = np.abs(Z) <= 2
-                Z[mask] = Z[mask]**2 + C[mask]
-                divtime[mask & (np.abs(Z) > 2)] = i
-
-            cmap = "viridis" if not pepe_mode else "summer"
-            fig, ax = plt.subplots(figsize=(8, 5.5))
-            ax.imshow(divtime, cmap=cmap, extent=[x.min(), x.max(), y.min(), y.max()])
-            ax.axis("off")
-            buf = io.BytesIO()
-            fig.savefig(buf, format="png", bbox_inches="tight", dpi=120)
-            plt.close(fig)
-            buf.seek(0)
-
-            img = Image.open(buf).convert("RGB")
-
+            # Load the exact Pepe template if mode is on
             if pepe_mode:
-                draw = ImageDraw.Draw(img)
-                # Much better Pepe drawing
-                draw.ellipse((180, 80, 520, 420), fill=(34, 139, 34))   # big green head
-                draw.ellipse((250, 170, 320, 240), fill=(255, 255, 255)) # left eye
-                draw.ellipse((380, 170, 450, 240), fill=(255, 255, 255)) # right eye
-                draw.ellipse((265, 185, 305, 225), fill=(0, 0, 0))       # left pupil
-                draw.ellipse((395, 185, 435, 225), fill=(0, 0, 0))       # right pupil
-                draw.line((270, 300, 430, 320), fill=(139, 69, 19), width=35)  # thick orange mouth
-                draw.rectangle((340, 330, 360, 370), fill=(255, 100, 100)) # tongue
-                draw.rectangle((200, 420, 500, 480), fill=(0, 0, 255))   # blue shirt
+                try:
+                    img = Image.open("pepe.png").convert("RGB")
+                except:
+                    st.error("pepe.png not found in the repo. Upload it as pepe.png")
+                    st.stop()
+            else:
+                # Normal fractal fallback
+                width, height = 700, 500
+                x = np.linspace(-2.5, 1.5, width)
+                y = np.linspace(-1.5, 1.5, height)
+                X, Y = np.meshgrid(x, y)
+                C = X + 1j * Y
+                Z = np.zeros_like(C)
+                divtime = np.zeros(C.shape, dtype=int)
+                for i in range(80):
+                    mask = np.abs(Z) <= 2
+                    Z[mask] = Z[mask]**2 + C[mask]
+                    divtime[mask & (np.abs(Z) > 2)] = i
+                fig, ax = plt.subplots(figsize=(8, 5.5))
+                ax.imshow(divtime, cmap="inferno", extent=[x.min(), x.max(), y.min(), y.max()])
+                ax.axis("off")
+                buf = io.BytesIO()
+                fig.savefig(buf, format="png", bbox_inches="tight", dpi=120)
+                plt.close(fig)
+                buf.seek(0)
+                img = Image.open(buf).convert("RGB")
 
-            # Hide the message
+            # Hide the message inside the image
             FIXED_SIZE = 256
             data = encrypted.ljust(FIXED_SIZE, b'\0')[:FIXED_SIZE]
 
-            flat = np.array(img).reshape(-1, 3)
+            arr = np.array(img)
+            flat = arr.reshape(-1, 3)
             random.seed(int(sha256(passphrase.encode()).hexdigest(), 16))
             idx = list(range(len(flat)))
             random.shuffle(idx)
@@ -97,18 +87,18 @@ with tab1:
                 p = idx[i]
                 flat[p, 0] = (flat[p, 0] & 0xFE) | int(bit)
 
-            final = Image.fromarray(flat.reshape(img.size[1], img.size[0], 3).astype("uint8"))
+            final = Image.fromarray(flat.reshape(arr.shape).astype("uint8"))
             out = io.BytesIO()
             final.save(out, format="PNG")
 
-            st.success("✅ Pepe-style fractal created with your message hidden inside!")
+            st.success("✅ Encrypted Pepe meme created!")
             st.image(out, use_container_width=True)
 
             col_download, col_share = st.columns(2)
             with col_download:
-                st.download_button("⬇️ Download PNG", out.getvalue(), "fractalx.png", "image/png", use_container_width=True)
+                st.download_button("⬇️ Download PNG", out.getvalue(), "pepe_meme.png", "image/png", use_container_width=True)
             with col_share:
-                tweet_text = "Secret message hidden inside this fractal. Only the right password can read it. Made with FractalX"
+                tweet_text = "Feels good man 🐸 Secret message hidden inside this Pepe. Only the right password can read it."
                 x_url = f"https://twitter.com/intent/tweet?text={tweet_text}&url=https://fractalx-3fxnxrg2auquemymk5rmxv.streamlit.app"
                 st.link_button("📤 Share to X", x_url, use_container_width=True)
 
