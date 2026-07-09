@@ -4,9 +4,18 @@ import matplotlib.pyplot as plt
 from hashlib import sha256
 import io
 import random
-from PIL import Image
+from PIL import Image, ImageDraw
 from cryptography.fernet import Fernet
 import base64
+
+# Phonetic alphabet mapping
+PHONETIC = {
+    'A': 'Alpha', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta', 'E': 'Echo',
+    'F': 'Foxtrot', 'G': 'Golf', 'H': 'Hotel', 'I': 'India', 'J': 'Juliett',
+    'K': 'Kilo', 'L': 'Lima', 'M': 'Mike', 'N': 'November', 'O': 'Oscar',
+    'P': 'Papa', 'Q': 'Quebec', 'R': 'Romeo', 'S': 'Sierra', 'T': 'Tango',
+    'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'Xray', 'Y': 'Yankee', 'Z': 'Zulu'
+}
 
 st.set_page_config(page_title="FractalX", layout="wide")
 
@@ -75,7 +84,7 @@ with tab1:
                 buf.seek(0)
                 img = Image.open(buf).convert("RGB")
 
-            # Hidden phonetic geometry (no visible letters)
+            # Hidden phonetic geometry
             if phonetic_mode:
                 phonetic_msg = ' '.join(PHONETIC.get(c.upper(), c) for c in message if c.isalpha())
                 st.info(f"Phonetic sequence hidden (invisible to eye)")
@@ -84,8 +93,7 @@ with tab1:
                 for i in range(min(30, len(phonetic_msg))):
                     x = random.randint(20, img.width-20)
                     y = random.randint(20, img.height-20)
-                    # Tiny invisible marker (1 pixel dot)
-                    img.putpixel((x, y), (1, 1, 1))  # almost invisible
+                    img.putpixel((x, y), (1, 1, 1))  # invisible marker
 
             # Hide the message in pixels
             FIXED_SIZE = 256
