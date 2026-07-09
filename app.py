@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from hashlib import sha256
 import io
 import random
-from PIL import Image
+from PIL import Image, ImageDraw
 from cryptography.fernet import Fernet
 import base64
 
@@ -33,6 +33,8 @@ with tab1:
     st.subheader("Password for this image")
     passphrase = st.text_input("Create a password", type="password")
 
+    pepe_mode = st.checkbox("🐸 Pepe Mode (looks like a meme)")
+
     if st.button("Generate Fractal + Hide Message", type="primary", use_container_width=True):
         if not message or not passphrase:
             st.error("Please enter a message and password.")
@@ -57,8 +59,9 @@ with tab1:
                 Z[mask] = Z[mask]**2 + C[mask]
                 divtime[mask & (np.abs(Z) > 2)] = i
 
+            cmap = "viridis" if not pepe_mode else "summer"
             fig, ax = plt.subplots(figsize=(8, 5.5))
-            ax.imshow(divtime, cmap="inferno", extent=[x.min(), x.max(), y.min(), y.max()])
+            ax.imshow(divtime, cmap=cmap, extent=[x.min(), x.max(), y.min(), y.max()])
             ax.axis("off")
             buf = io.BytesIO()
             fig.savefig(buf, format="png", bbox_inches="tight", dpi=120)
@@ -68,10 +71,19 @@ with tab1:
             img = Image.open(buf).convert("RGB")
             arr = np.array(img)
 
+            # Simple Pepe features when in Pepe Mode
+            if pepe_mode:
+                draw = ImageDraw.Draw(img)
+                draw.ellipse((250, 150, 450, 350), fill=(0, 255, 0))  # head
+                draw.ellipse((300, 220, 340, 260), fill=(0, 0, 0))     # left eye
+                draw.ellipse((360, 220, 400, 260), fill=(0, 0, 0))     # right eye
+                draw.line((320, 380, 380, 380), fill=(0, 0, 0), width=20)  # mouth
+
+            # Hide the message
             FIXED_SIZE = 256
             data = encrypted.ljust(FIXED_SIZE, b'\0')[:FIXED_SIZE]
 
-            flat = arr.reshape(-1, 3)
+            flat = np.array(img).reshape(-1, 3)
             random.seed(int(sha256(passphrase.encode()).hexdigest(), 16))
             idx = list(range(len(flat)))
             random.shuffle(idx)
@@ -82,7 +94,7 @@ with tab1:
                 p = idx[i]
                 flat[p, 0] = (flat[p, 0] & 0xFE) | int(bit)
 
-            final = Image.fromarray(flat.reshape(arr.shape).astype("uint8"))
+            final = Image.fromarray(flat.reshape(img.size[1], img.size[0], 3).astype("uint8"))
             out = io.BytesIO()
             final.save(out, format="PNG")
 
