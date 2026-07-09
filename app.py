@@ -72,14 +72,15 @@ with tab1:
 
             if pepe_mode:
                 draw = ImageDraw.Draw(img)
-                # Improved Pepe drawing
-                draw.ellipse((200, 120, 500, 420), fill=(34, 139, 34))   # green head
-                draw.ellipse((270, 200, 330, 260), fill=(255, 255, 255)) # left eye
-                draw.ellipse((370, 200, 430, 260), fill=(255, 255, 255)) # right eye
-                draw.ellipse((280, 210, 310, 240), fill=(0, 0, 0))       # left pupil
-                draw.ellipse((390, 210, 420, 240), fill=(0, 0, 0))       # right pupil
-                draw.arc((300, 320, 400, 380), 20, 160, fill=(0, 0, 0), width=25)  # wide smile
-                draw.rectangle((340, 340, 360, 380), fill=(255, 100, 100)) # tongue
+                # Much better Pepe drawing
+                draw.ellipse((180, 80, 520, 420), fill=(34, 139, 34))   # big green head
+                draw.ellipse((250, 170, 320, 240), fill=(255, 255, 255)) # left eye
+                draw.ellipse((380, 170, 450, 240), fill=(255, 255, 255)) # right eye
+                draw.ellipse((265, 185, 305, 225), fill=(0, 0, 0))       # left pupil
+                draw.ellipse((395, 185, 435, 225), fill=(0, 0, 0))       # right pupil
+                draw.line((270, 300, 430, 320), fill=(139, 69, 19), width=35)  # thick orange mouth
+                draw.rectangle((340, 330, 360, 370), fill=(255, 100, 100)) # tongue
+                draw.rectangle((200, 420, 500, 480), fill=(0, 0, 255))   # blue shirt
 
             # Hide the message
             FIXED_SIZE = 256
