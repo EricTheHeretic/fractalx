@@ -1,5 +1,6 @@
 import streamlit as st
 import numpy as np
+import matplotlib.pyplot as plt
 from hashlib import sha256
 import io
 import random
@@ -32,7 +33,7 @@ with tab1:
     st.subheader("Password for this image")
     passphrase = st.text_input("Create a password", type="password")
 
-    pepe_mode = st.checkbox("🐸 Use exact Pepe template")
+    pepe_mode = st.checkbox("🐸 Deploy Pepe (random meme)")
 
     if st.button("Generate Fractal + Hide Message", type="primary", use_container_width=True):
         if not message or not passphrase:
@@ -42,15 +43,18 @@ with tab1:
             fernet = Fernet(key)
             encrypted = fernet.encrypt(message.encode())
 
-            # Load the exact Pepe template if mode is on
             if pepe_mode:
+                # Randomly choose one of the 5 Pepe images
+                pepe_files = ["pepe1.png", "pepe2.png", "pepe3.png", "pepe4.png", "pepe5.png"]
+                chosen_pepe = random.choice(pepe_files)
                 try:
-                    img = Image.open("pepe.png").convert("RGB")
+                    img = Image.open(chosen_pepe).convert("RGB")
+                    st.info(f"Using {chosen_pepe}")
                 except:
-                    st.error("pepe.png not found in the repo. Upload it as pepe.png")
+                    st.error(f"Could not find {chosen_pepe}. Make sure you uploaded pepe1.png to pepe5.png")
                     st.stop()
             else:
-                # Normal fractal fallback
+                # Normal fractal
                 width, height = 700, 500
                 x = np.linspace(-2.5, 1.5, width)
                 y = np.linspace(-1.5, 1.5, height)
@@ -58,10 +62,12 @@ with tab1:
                 C = X + 1j * Y
                 Z = np.zeros_like(C)
                 divtime = np.zeros(C.shape, dtype=int)
+
                 for i in range(80):
                     mask = np.abs(Z) <= 2
                     Z[mask] = Z[mask]**2 + C[mask]
                     divtime[mask & (np.abs(Z) > 2)] = i
+
                 fig, ax = plt.subplots(figsize=(8, 5.5))
                 ax.imshow(divtime, cmap="inferno", extent=[x.min(), x.max(), y.min(), y.max()])
                 ax.axis("off")
@@ -71,7 +77,7 @@ with tab1:
                 buf.seek(0)
                 img = Image.open(buf).convert("RGB")
 
-            # Hide the message inside the image
+            # Hide the message
             FIXED_SIZE = 256
             data = encrypted.ljust(FIXED_SIZE, b'\0')[:FIXED_SIZE]
 
