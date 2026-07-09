@@ -69,15 +69,17 @@ with tab1:
             buf.seek(0)
 
             img = Image.open(buf).convert("RGB")
-            arr = np.array(img)
 
-            # Simple Pepe features when in Pepe Mode
             if pepe_mode:
                 draw = ImageDraw.Draw(img)
-                draw.ellipse((250, 150, 450, 350), fill=(0, 255, 0))  # head
-                draw.ellipse((300, 220, 340, 260), fill=(0, 0, 0))     # left eye
-                draw.ellipse((360, 220, 400, 260), fill=(0, 0, 0))     # right eye
-                draw.line((320, 380, 380, 380), fill=(0, 0, 0), width=20)  # mouth
+                # Improved Pepe drawing
+                draw.ellipse((200, 120, 500, 420), fill=(34, 139, 34))   # green head
+                draw.ellipse((270, 200, 330, 260), fill=(255, 255, 255)) # left eye
+                draw.ellipse((370, 200, 430, 260), fill=(255, 255, 255)) # right eye
+                draw.ellipse((280, 210, 310, 240), fill=(0, 0, 0))       # left pupil
+                draw.ellipse((390, 210, 420, 240), fill=(0, 0, 0))       # right pupil
+                draw.arc((300, 320, 400, 380), 20, 160, fill=(0, 0, 0), width=25)  # wide smile
+                draw.rectangle((340, 340, 360, 380), fill=(255, 100, 100)) # tongue
 
             # Hide the message
             FIXED_SIZE = 256
@@ -98,7 +100,7 @@ with tab1:
             out = io.BytesIO()
             final.save(out, format="PNG")
 
-            st.success("✅ Fractal created with your message hidden inside!")
+            st.success("✅ Pepe-style fractal created with your message hidden inside!")
             st.image(out, use_container_width=True)
 
             col_download, col_share = st.columns(2)
