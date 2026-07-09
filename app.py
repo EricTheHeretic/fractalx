@@ -4,9 +4,18 @@ import matplotlib.pyplot as plt
 from hashlib import sha256
 import io
 import random
-from PIL import Image
+from PIL import Image, ImageDraw
 from cryptography.fernet import Fernet
 import base64
+
+# Phonetic alphabet mapping
+PHONETIC = {
+    'A': 'Alpha', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta', 'E': 'Echo',
+    'F': 'Foxtrot', 'G': 'Golf', 'H': 'Hotel', 'I': 'India', 'J': 'Juliett',
+    'K': 'Kilo', 'L': 'Lima', 'M': 'Mike', 'N': 'November', 'O': 'Oscar',
+    'P': 'Papa', 'Q': 'Quebec', 'R': 'Romeo', 'S': 'Sierra', 'T': 'Tango',
+    'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'Xray', 'Y': 'Yankee', 'Z': 'Zulu'
+}
 
 st.set_page_config(page_title="FractalX", layout="wide")
 
@@ -34,6 +43,7 @@ with tab1:
     passphrase = st.text_input("Create a password", type="password")
 
     pepe_mode = st.checkbox("🐸 Deploy Pepe (random meme)")
+    phonetic_mode = st.checkbox("🔤 Phonetic Geometry Mode")
 
     if st.button("Generate Fractal + Hide Message", type="primary", use_container_width=True):
         if not message or not passphrase:
@@ -44,14 +54,12 @@ with tab1:
             encrypted = fernet.encrypt(message.encode())
 
             if pepe_mode:
-                # Randomly choose one of the 5 Pepe images
                 pepe_files = ["pepe1.png", "pepe2.png", "pepe3.png", "pepe4.png", "pepe5.png"]
-                chosen_pepe = random.choice(pepe_files)
+                chosen = random.choice(pepe_files)
                 try:
-                    img = Image.open(chosen_pepe).convert("RGB")
-                    st.info(f"Using {chosen_pepe}")
+                    img = Image.open(chosen).convert("RGB")
                 except:
-                    st.error(f"Could not find {chosen_pepe}. Make sure you uploaded pepe1.png to pepe5.png")
+                    st.error(f"Could not find {chosen}")
                     st.stop()
             else:
                 # Normal fractal
@@ -77,7 +85,19 @@ with tab1:
                 buf.seek(0)
                 img = Image.open(buf).convert("RGB")
 
-            # Hide the message
+            # Phonetic geometry on top (works with both normal and Pepe)
+            if phonetic_mode:
+                phonetic_msg = ' '.join(PHONETIC.get(c.upper(), c) for c in message if c.isalpha())
+                st.info(f"Phonetic sequence hidden: {phonetic_msg[:80]}...")
+                draw = ImageDraw.Draw(img)
+                # Simple phonetic markers seeded by password
+                random.seed(int(sha256(passphrase.encode()).hexdigest(), 16))
+                for i in range(min(20, len(phonetic_msg))):
+                    x = random.randint(50, img.width-50)
+                    y = random.randint(50, img.height-50)
+                    draw.text((x, y), phonetic_msg[i], fill=(255, 255, 0), size=20)
+
+            # Hide the message in pixels
             FIXED_SIZE = 256
             data = encrypted.ljust(FIXED_SIZE, b'\0')[:FIXED_SIZE]
 
@@ -97,14 +117,14 @@ with tab1:
             out = io.BytesIO()
             final.save(out, format="PNG")
 
-            st.success("✅ Encrypted Pepe meme created!")
+            st.success("✅ Encrypted image created!")
             st.image(out, use_container_width=True)
 
             col_download, col_share = st.columns(2)
             with col_download:
-                st.download_button("⬇️ Download PNG", out.getvalue(), "pepe_meme.png", "image/png", use_container_width=True)
+                st.download_button("⬇️ Download PNG", out.getvalue(), "fractalx.png", "image/png", use_container_width=True)
             with col_share:
-                tweet_text = "Feels good man 🐸 Secret message hidden inside this Pepe. Only the right password can read it."
+                tweet_text = "Secret message hidden inside this fractal. Only the right password can read it. Made with FractalX"
                 x_url = f"https://twitter.com/intent/tweet?text={tweet_text}&url=https://fractalx-3fxnxrg2auquemymk5rmxv.streamlit.app"
                 st.link_button("📤 Share to X", x_url, use_container_width=True)
 
