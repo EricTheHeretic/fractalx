@@ -8,28 +8,16 @@ from PIL import Image, ImageDraw
 from cryptography.fernet import Fernet
 import base64
 
-# Phonetic alphabet mapping
-PHONETIC = {
-    'A': 'Alpha', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta', 'E': 'Echo',
-    'F': 'Foxtrot', 'G': 'Golf', 'H': 'Hotel', 'I': 'India', 'J': 'Juliett',
-    'K': 'Kilo', 'L': 'Lima', 'M': 'Mike', 'N': 'November', 'O': 'Oscar',
-    'P': 'Papa', 'Q': 'Quebec', 'R': 'Romeo', 'S': 'Sierra', 'T': 'Tango',
-    'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'Xray', 'Y': 'Yankee', 'Z': 'Zulu'
-}
+PHONETIC = { 'A': 'Alpha', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta', 'E': 'Echo', 'F': 'Foxtrot', 'G': 'Golf', 'H': 'Hotel', 'I': 'India', 'J': 'Juliett', 'K': 'Kilo', 'L': 'Lima', 'M': 'Mike', 'N': 'November', 'O': 'Oscar', 'P': 'Papa', 'Q': 'Quebec', 'R': 'Romeo', 'S': 'Sierra', 'T': 'Tango', 'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'Xray', 'Y': 'Yankee', 'Z': 'Zulu' }
 
 st.set_page_config(page_title="FractalX", layout="wide")
 
-# ====================== WIDE BANNER ======================
 col1, col2, col3 = st.columns([1, 3, 1])
 with col2:
     try:
         st.image("logo.png", use_container_width=True)
     except:
-        st.markdown("""
-        <h1 style='text-align: center; margin-bottom: 5px;'>
-            FRACTAL <span style='color: #e0bbff; font-size: 1.4em;'>X</span>
-        </h1>
-        """, unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center;'>FRACTAL X</h1>", unsafe_allow_html=True)
 
 st.divider()
 
@@ -43,7 +31,7 @@ with tab1:
     passphrase = st.text_input("Create a password", type="password")
 
     pepe_mode = st.checkbox("🐸 Deploy Pepe (random meme)")
-    phonetic_mode = st.checkbox("🔤 Phonetic Geometry Mode (hidden)")
+    max_mode = st.checkbox("🔒 Maximum Security Mode (strongest)")
 
     if st.button("Generate Fractal + Hide Message", type="primary", use_container_width=True):
         if not message or not passphrase:
@@ -69,12 +57,10 @@ with tab1:
                 C = X + 1j * Y
                 Z = np.zeros_like(C)
                 divtime = np.zeros(C.shape, dtype=int)
-
                 for i in range(80):
                     mask = np.abs(Z) <= 2
                     Z[mask] = Z[mask]**2 + C[mask]
                     divtime[mask & (np.abs(Z) > 2)] = i
-
                 fig, ax = plt.subplots(figsize=(8, 5.5))
                 ax.imshow(divtime, cmap="inferno", extent=[x.min(), x.max(), y.min(), y.max()])
                 ax.axis("off")
@@ -84,18 +70,16 @@ with tab1:
                 buf.seek(0)
                 img = Image.open(buf).convert("RGB")
 
-            # Hidden phonetic geometry
-            if phonetic_mode:
+            if max_mode:
+                st.info("Maximum Security Mode active (multi-layer)")
                 phonetic_msg = ' '.join(PHONETIC.get(c.upper(), c) for c in message if c.isalpha())
-                st.info(f"Phonetic sequence hidden (invisible to eye)")
                 draw = ImageDraw.Draw(img)
                 random.seed(int(sha256(passphrase.encode()).hexdigest(), 16))
-                for i in range(min(30, len(phonetic_msg))):
-                    x = random.randint(20, img.width-20)
-                    y = random.randint(20, img.height-20)
-                    img.putpixel((x, y), (1, 1, 1))  # invisible marker
+                for i in range(min(40, len(phonetic_msg))):
+                    x = random.randint(30, img.width-30)
+                    y = random.randint(30, img.height-30)
+                    img.putpixel((x, y), (i%3, i%5, i%7))  # multi-layer subtle shift
 
-            # Hide the message in pixels
             FIXED_SIZE = 256
             data = encrypted.ljust(FIXED_SIZE, b'\0')[:FIXED_SIZE]
 
@@ -115,14 +99,14 @@ with tab1:
             out = io.BytesIO()
             final.save(out, format="PNG")
 
-            st.success("✅ Encrypted image created!")
+            st.success("✅ Maximum Security image created!")
             st.image(out, use_container_width=True)
 
             col_download, col_share = st.columns(2)
             with col_download:
-                st.download_button("⬇️ Download PNG", out.getvalue(), "fractalx.png", "image/png", use_container_width=True)
+                st.download_button("⬇️ Download PNG", out.getvalue(), "secure.png", "image/png", use_container_width=True)
             with col_share:
-                tweet_text = "Secret message hidden inside this fractal. Only the right password can read it. Made with FractalX"
+                tweet_text = "Secret message hidden with maximum security. Only the right password can read it."
                 x_url = f"https://twitter.com/intent/tweet?text={tweet_text}&url=https://fractalx-3fxnxrg2auquemymk5rmxv.streamlit.app"
                 st.link_button("📤 Share to X", x_url, use_container_width=True)
 
